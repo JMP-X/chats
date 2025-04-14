@@ -43,15 +43,15 @@ class Recive(threading.Thread):
         super().__init__()
         self.sock = sock
         self.name = name
-        self.message = None
+        self.messages = None
     
     def run(self):
         while True:
             message = self.sock.recv(1024).decode('ascii')
             
             if message:
-                if self.message:
-                    self.message.insert(tk.END, message)
+                if self.messages:
+                    self.messages.insert(tk.END, message)
                     print('Hello...')
                     print('\r{}\n{}: '.format(message,self.name),end='')
                     
@@ -74,7 +74,7 @@ class Client:
         self.port = port
         self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.name = None
-        self.message = None
+        self.messages = None
         
     
     def start(self):
@@ -95,7 +95,7 @@ class Client:
         send.start()
         ReciveMSG.start()
     
-        self.sock.sendall(f'Server: {self.name}joined the chat!'.encode('ascii'))
+        self.sock.sendall(f'Server: {self.name} joined the chat!'.encode('ascii'))
         print("\r Leave chatroom by typing 'DC")
         print(f'{self.name}:', end='')
     
@@ -107,7 +107,7 @@ class Client:
         
         message = TInput.get()
         TInput.delete(0, tk.END)
-        self.message.insert(tk.END, '{}: {}'.format(self.name,message))
+        self.messages.insert(tk.END, '{}: {}'.format(self.name,message))
         
         #leave Room with 'DC'
         
@@ -148,7 +148,7 @@ def main(host,port):
     TextIn.bind("<Return>", lambda x: client.send(TextIn))
     TextIn.insert(0,"Message: ")
     
-    buttonSend = tk.Button( master=window, text="Send", command=lambda: client.send(TextIn))
+    buttonSend = tk.Button(master=window, text="Send", command=lambda: client.send(TextIn))
     
     FromEntry.grid(row=1,column=0, padx= 10,sticky="ew")
     buttonSend.grid(row=1,column=1, pady= 10,sticky="ew")

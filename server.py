@@ -37,7 +37,7 @@ class Server(threading.Thread):
          print("Ready to recieve messages from",sc.getpeername())
     
     def broadcast(self,message,source):
-        for connection in self.connections():
+        for connection in self.connections:
             
             if connection.sockname != source: # send to all connected client accept the source client
                 connection.send(message)
@@ -59,13 +59,13 @@ class ServerSocket(threading.Thread):
             
             if message:
                 print(f"{self.sockname} say {message}")
-                self.server.broadcast(message,self.sockname)
+                self.server.broadcast(message, self.sockname)
                 
             else:
                 print(f"{self.sockname} closed the connection")
                 Server.remove_connection(self)
                 
-    def sendmsg(self, message):
+    def send(self, message):
         self.sc.sendall(message.encode('ascii'))
         
 def exit(server):
@@ -74,7 +74,7 @@ def exit(server):
         ipt = input("")
         if ipt == "q":
             print("Closing session")
-            for connection in server.connections():
+            for connection in server.connections:
                 connection.sc.close()
                 
             print("shutting server")

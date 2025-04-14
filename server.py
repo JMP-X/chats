@@ -53,17 +53,33 @@ class ServerSocket(threading.Thread):
         self.server = server
         
     def run(self):
-        
-        while True:
-            message = self.sc.recv(1024).decode('ascii')
-            
-            if message:
-                print(f"{self.sockname} say {message}")
-                self.server.broadcast(message, self.sockname)
-                
-            else:
+     while True:
+        try:
+            message = self.sc.recv(1024)
+            if not message:  # Connection closed by client
                 print(f"{self.sockname} closed the connection")
-                Server.remove_connection(self)
+                self.server.remove_connection(self)
+                self.sc.close()
+                break
+                
+            try:
+                decoded_message = message.decode('ascii')
+                print(f"{self.sockname} says {decoded_message}")
+                self.server.broadcast(decoded_message, self.sockname)
+            except UnicodeDecodeError:
+                print(f"{self.sockname} sent non-ASCII data")
+                continue
+                
+        except ConnectionResetError:
+            print(f"{self.sockname} connection reset")
+            self.server.remove_connection(self)
+            self.sc.close()
+            break
+        except OSError as e:
+            print(f"Error with {self.sockname}: {e}")
+            self.server.remove_connection(self)
+            self.sc.close()
+            break
                 
     def send(self, message):
         self.sc.sendall(message.encode('ascii'))

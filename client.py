@@ -115,7 +115,7 @@ class Client:
          self.sock.sendall('Server: {} has left'.format(self.name).encode('ascii'))
          print('\nTerminating.....')
          self.sock.close()
-         os.exit(0) 
+         os._exit(0) 
         
         #send normal message
         else: 
